@@ -7,13 +7,13 @@ import {navigationRef} from './NavigationService';
 
 // Files
 import Home from '../Screens/Home/index';
-import Profile from '../Screens/Profile/index';
-import Signin from '../Screens/SignIn/index';
-import SignUp from '../Screens/SignUp/index';
-import Account from '../Screens/Account/index';
+import ChatDashboard from '../Screens/ChatDashboard/index';
+// import Signin from '../Screens/SignIn/index';
+// import SignUp from '../Screens/SignUp/index';
+// import Account from '../Screens/Account/index';
 
 const HomeStack = createStackNavigator();
-const Navigation = () => {
+const Navigation = props => {
   const HomestackNavigator = () => {
     return (
       <HomeStack.Navigator
@@ -21,17 +21,14 @@ const Navigation = () => {
           animationEnabled: false,
         }}>
         <HomeStack.Screen name="Home" component={Home} />
-        <HomeStack.Screen name="Signin" component={Signin} />
-        <HomeStack.Screen name="SignUp" component={SignUp} />
-        <HomeStack.Screen name="Account" component={Account} />
       </HomeStack.Navigator>
     );
   };
   const Stack = createStackNavigator();
-  const ProfilestackNavigator = () => {
+  const ChatDashboardStackNavigator = () => {
     return (
       <Stack.Navigator>
-        <Stack.Screen name="Profile" component={Profile} />
+        <Stack.Screen name="ChatDashboard" component={ChatDashboard} />
       </Stack.Navigator>
     );
   };
@@ -54,38 +51,43 @@ const Navigation = () => {
               // console.log(route,"route")
               if (route.name === 'Home') {
                 return <Ionicons name="md-home" size={30} color="black" />;
-              } else if (route.name === 'profile') {
+              } else if (route.name === 'ChatDashboard') {
                 return <Ionicons name="md-contact" size={30} color="black" />;
               }
 
               // You can return any component that you like here!
             },
           })}>
-          <Tab.Screen
+          {/* <Tab.Screen
             name="Home"
             component={HomestackNavigator}
             options={({route}) => ({
               tabBarVisible: showTab(route, NotShowTab),
             })}
+          /> */}
+          <Tab.Screen
+            name="ChatDashboard"
+            component={ChatDashboardStackNavigator}
           />
-          <Tab.Screen name="profile" component={ProfilestackNavigator} />
         </Tab.Navigator>
       </NavigationContainer>
     );
   };
 
-  // const FINALStack = createStackNavigator();
-  // const stackNavigator = () => {
-  //   return (
-  //     <NavigationContainer>
-  //       {/* <FINALStack.Navigator>
-  //         <FINALStack.Screen name="Home" component={TabNavigator} />
-  //       </FINALStack.Navigator> */}
-
-  //       <TabNavigator />
-  //     </NavigationContainer>
-  //   );
-  // };
+  const FINALStack = createStackNavigator();
+  const FinalstackNavigator = () => {
+    const {user} = props;
+    return (
+      <NavigationContainer>
+        <FINALStack.Navigator>
+          <FINALStack.Screen
+            name="Home"
+            component={user ? TabNavigator : HomestackNavigator}
+          />
+        </FINALStack.Navigator>
+      </NavigationContainer>
+    );
+  };
 
   return TabNavigator();
 };

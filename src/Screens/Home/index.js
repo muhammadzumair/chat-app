@@ -1,52 +1,82 @@
-import React, {Component} from 'react';
-import {View, Text, Button, TouchableOpacity} from 'react-native';
+import React, {Component, useEffect} from 'react';
+import {Container} from 'native-base';
+import {Text, TouchableOpacity, View} from 'react-native';
+import firestore from '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth';
 
-class Home extends Component {
+import styles from './style';
+import store from '../../Redux/store';
+import {FbLogin} from '../../Redux/Actions/FbLoginAction';
+
+export default class Home extends Component {
+  state = {
+    email: '',
+    Password: '',
+  };
+
+  // componentDidMount() {
+  //   auth().onAuthStateChanged(User => {
+  //     console.log(User, 'user');
+  //   });
+  // }
+
   render() {
+    // console.log(this.state.email, 'email');
+    // console.log(auth, 'auth');
     return (
-      <View>
-        <Text>Home screen</Text>
-        <TouchableOpacity
-          style={{backgroundColor: 'black', alignItems: 'center', height: 50}}
-          onPress={() => {
-            this.props.navigation.navigate('Signin');
-          }}>
-          <Text style={{color: 'white', marginTop: 10, fontSize: 20}}>
-            SIGN IN
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
+      <Container>
+        <View
           style={{
-            backgroundColor: 'black',
-            alignItems: 'center',
-            height: 50,
-            marginTop: 10,
-          }}
-          onPress={() => {
-            this.props.navigation.navigate('SignUp');
+            marginTop: 50,
+            border: 1,
+            borderColor: 'grey',
+            elevation: 2,
+            borderRadius: 5,
+            margin: 5,
+            paddingRight: 10,
+            height: 220,
           }}>
-          <Text style={{color: 'white', marginTop: 10, fontSize: 20}}>
-            SIGN UP
-          </Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={{
+              alignItems: 'center',
+              backgroundColor: 'black',
+              height: 50,
+              borderRadius: 5,
+              marginLeft: 10,
+              marginTop: 20,
+            }}
+            onPress={() => {
+              // this.Login();
+            }}>
+            <Text style={{color: 'white', fontSize: 20, marginTop: 10}}>
+              Login With Google
+            </Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          style={{
-            backgroundColor: 'black',
-            alignItems: 'center',
-            height: 50,
-            marginTop: 10,
-          }}
-          onPress={() => {
-            this.props.navigation.navigate('Account');
-          }}>
-          <Text style={{color: 'white', marginTop: 10, fontSize: 20}}>
-            Account
-          </Text>
-        </TouchableOpacity>
-      </View>
+          <View style={styles.lineContainer}>
+            <View style={styles.hairline} />
+            <Text>OR</Text>
+            <View style={styles.hairline} />
+          </View>
+
+          <TouchableOpacity
+            style={{
+              alignItems: 'center',
+              backgroundColor: 'black',
+              height: 50,
+              borderRadius: 5,
+              marginLeft: 10,
+              marginTop: 20,
+            }}
+            onPress={() => {
+              store.dispatch(FbLogin(this.props));
+            }}>
+            <Text style={{color: 'white', fontSize: 20, marginTop: 10}}>
+              Login with facebook
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </Container>
     );
   }
 }
-export default Home;

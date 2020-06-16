@@ -30,7 +30,7 @@ const FbLogin = props => {
               const firebaseFacebookLogin = await _firebaseFbLogin(accessToken);
               console.log(firebaseFacebookLogin, 'firebaseFacebookLogin');
               // NavigationService.navigate('Profile');
-              props.navigation.navigate('Account');
+              props.navigation.navigate('ChatDashboard');
               dispatch({
                 type: 'FbLogin',
                 FbUserDetail: 'firebaseFacebookLogin',
