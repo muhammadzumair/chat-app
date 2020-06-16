@@ -10,7 +10,6 @@ const App = () => {
   const [user, setUser] = useState();
   const checkUser = () => {
     auth().onAuthStateChanged(user => {
-      console.log(user, 'user hai');
       setUser(user);
     });
   };

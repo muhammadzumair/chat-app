@@ -18,24 +18,17 @@ const FbLogin = props => {
     LoginManager.logInWithPermissions(['public_profile']).then(
       async result => {
         if (result.isCancelled) {
-          console.log('Login cancelled');
         } else {
           const {accessToken} = await AccessToken.getCurrentAccessToken();
 
           const responseInfoCallback = async (error, user) => {
             if (error) {
-              console.log('Error fetching data: ' + error.toString());
             } else {
-              console.log('Success fetching data: ' + user.toString());
               const firebaseFacebookLogin = await _firebaseFbLogin(accessToken);
-              console.log(firebaseFacebookLogin, 'firebaseFacebookLogin');
-              // NavigationService.navigate('Profile');
-              props.navigation.navigate('ChatDashboard');
               dispatch({
                 type: 'FbLogin',
                 FbUserDetail: 'firebaseFacebookLogin',
               });
-              console.log('okkk');
             }
           };
 
