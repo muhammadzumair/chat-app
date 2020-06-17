@@ -1,8 +1,8 @@
 import {combineReducers} from 'redux';
 import AuthReducer from './Reducer/AuthReducer';
-import FbLoginReducer from './Reducer/FbLoginReducer';
+import UserReducer from './Reducer/UserReducer';
 
 export default combineReducers({
   AuthReducer,
-  FbLoginReducer,
+  UserReducer,
 });

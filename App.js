@@ -3,18 +3,33 @@ import {View, Text} from 'react-native';
 import {Provider} from 'react-redux';
 import store from './src/Redux/store';
 import Navigation from './src/Navigation/stack';
-// const Stack = createStackNavigator();
+import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 
 const App = () => {
   const [user, setUser] = useState();
+  const [Update, setUpdate] = useState(true);
   const checkUser = () => {
     auth().onAuthStateChanged(user => {
       setUser(user);
-      store.dispatch({
-        type: 'USER',
-        user,
-      });
+      if (user) {
+        console.log(user, 'user hai');
+        store.dispatch({
+          type: 'USER',
+          user,
+        });
+        const UserObj = {
+          displayName: user.displayName,
+          PhotoUrl: user.photoURL,
+          UserEmail: user.email,
+          UserUid: user.uid,
+        };
+        console.log(user, 'uid');
+        firestore()
+          .collection('Users')
+          .doc(user?.uid)
+          .set(UserObj);
+      }
     });
   };
   useEffect(() => {

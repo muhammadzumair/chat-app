@@ -2,7 +2,6 @@ import React, {Component, useEffect} from 'react';
 import {Container} from 'native-base';
 import {Text, TouchableOpacity, View} from 'react-native';
 import firestore from '@react-native-firebase/firestore';
-import auth from '@react-native-firebase/auth';
 import {GoogleSignin} from '@react-native-community/google-signin';
 
 import styles from './style';

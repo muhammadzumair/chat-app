@@ -15,40 +15,46 @@ const _firebaseFbLogin = async accessToken => {
 
 const FbLogin = props => {
   return dispatch => {
-    LoginManager.logInWithPermissions(['public_profile']).then(
-      async result => {
-        if (result.isCancelled) {
-        } else {
-          const {accessToken} = await AccessToken.getCurrentAccessToken();
+    try {
+      LoginManager.logInWithPermissions(['public_profile', 'email']).then(
+        async result => {
+          if (result.isCancelled) {
+          } else {
+            const {accessToken} = await AccessToken.getCurrentAccessToken();
 
-          const responseInfoCallback = async (error, user) => {
-            if (error) {
-            } else {
-              const firebaseFacebookLogin = await _firebaseFbLogin(accessToken);
-            }
-          };
+            const responseInfoCallback = async (error, user) => {
+              if (error) {
+              } else {
+                const firebaseFacebookLogin = await _firebaseFbLogin(
+                  accessToken,
+                );
+              }
+            };
 
-          const infoRequest = new GraphRequest(
-            '/me',
-            {
-              accessToken,
-              parameters: {
-                fields: {
-                  string: 'id,email,name,picture.width(240).height(240)',
+            const infoRequest = new GraphRequest(
+              '/me',
+              {
+                accessToken,
+                parameters: {
+                  fields: {
+                    string: 'id,email,name,picture.width(240).height(240)',
+                  },
                 },
+                version: 'v6.0',
               },
-              version: 'v6.0',
-            },
-            responseInfoCallback,
-          );
+              responseInfoCallback,
+            );
 
-          new GraphRequestManager().addRequest(infoRequest).start();
-        }
-      },
-      function(error) {
-        console.log('Login fail with error: ' + error);
-      },
-    );
+            new GraphRequestManager().addRequest(infoRequest).start();
+          }
+        },
+        function(error) {
+          console.log('Login fail with error: ' + error);
+        },
+      );
+    } catch (error) {
+      console.log(error);
+    }
   };
 };
 

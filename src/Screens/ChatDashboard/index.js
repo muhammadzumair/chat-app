@@ -12,7 +12,7 @@ const Chat = props => {
   };
 
   useEffect(() => {
-    console.log(store.getState().FbLoginReducer);
+    console.log(store.getState().UserReducer.user.displayName);
   });
   return (
     <View>
