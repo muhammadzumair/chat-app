@@ -11,6 +11,10 @@ const App = () => {
   const checkUser = () => {
     auth().onAuthStateChanged(user => {
       setUser(user);
+      store.dispatch({
+        type: 'USER',
+        user,
+      });
     });
   };
   useEffect(() => {

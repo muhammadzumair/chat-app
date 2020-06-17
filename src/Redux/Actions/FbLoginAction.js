@@ -25,10 +25,6 @@ const FbLogin = props => {
             if (error) {
             } else {
               const firebaseFacebookLogin = await _firebaseFbLogin(accessToken);
-              dispatch({
-                type: 'FbLogin',
-                FbUserDetail: 'firebaseFacebookLogin',
-              });
             }
           };
 

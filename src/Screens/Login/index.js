@@ -3,12 +3,21 @@ import {Container} from 'native-base';
 import {Text, TouchableOpacity, View} from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
+import {GoogleSignin} from '@react-native-community/google-signin';
 
 import styles from './style';
 import store from '../../Redux/store';
 import {FbLogin} from '../../Redux/Actions/FbLoginAction';
+import {GoogleLogin} from '../../Redux/Actions/GoogleLoginaAction';
 
 const Login = () => {
+  useEffect(() => {
+    GoogleSignin.configure({
+      webClientId:
+        '107228495211-631plvhq99de2uro3nl2e1418bqg83u9.apps.googleusercontent.com',
+    });
+  }, []);
+
   return (
     <Container>
       <View
@@ -32,7 +41,7 @@ const Login = () => {
             marginTop: 20,
           }}
           onPress={() => {
-            // this.Login();
+            store.dispatch(GoogleLogin());
           }}>
           <Text style={{color: 'white', fontSize: 20, marginTop: 10}}>
             Login With Google
