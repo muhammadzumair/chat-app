@@ -13,6 +13,7 @@ import Login from '../Screens/Login/index';
 import ChatDashboard from '../Screens/ChatDashboard/index';
 import AllUsers from '../Screens/AllUsers/index';
 import Settings from '../Screens/Settings/index';
+import ChatBox from '../Screens/ChatBox/index';
 import styles from './style';
 
 const Navigation = props => {
@@ -28,10 +29,26 @@ const Navigation = props => {
     );
   };
 
+  const Userstack = createStackNavigator();
+  const AllUserStack = () => {
+    return (
+      <Userstack.Navigator>
+        <Userstack.Screen
+          name="Allusers"
+          component={AllUsers}
+          options={() => ({
+            headerShown: false,
+          })}
+        />
+        <Userstack.Screen name="ChatBox" component={ChatBox} />
+      </Userstack.Navigator>
+    );
+  };
+
   const Stack = createStackNavigator();
   const ChatDashboardStackNavigator = () => {
     const {user} = props;
-    console.log(user.photoURL, 'photo');
+    // console.log(user.photoURL, 'photo');
     const arr = user.displayName.split(' ');
     var name = arr
       .map(item => item.charAt(0).toUpperCase() + item.slice(1))
@@ -45,15 +62,19 @@ const Navigation = props => {
             headerLeft: () => (
               <Image source={{uri: user.photoURL}} style={styles.stackImage} />
             ),
+            headerShown: false,
           })}
         />
+        <Stack.Screen name="ChatBox" component={ChatBox} />
       </Stack.Navigator>
     );
   };
 
-  const NotShowTab = ['Signin', 'SignUp', 'Account'];
+  const NotShowTab = ['ChatBox'];
 
   const showTab = (route, array) => {
+    console.log(route, 'route');
+
     const RouteName = route?.state?.routes[route.state.index]?.name;
     return !array.includes(RouteName);
   };
@@ -68,7 +89,7 @@ const Navigation = props => {
             if (route.name === 'Login') {
               return <Ionicons name="md-Login" size={30} color="black" />;
             } else if (route.name === 'Chat') {
-              return <Ionicons name="md-contact" size={30} color="black" />;
+              return <Ionicons name="md-chatboxes" size={30} color="black" />;
             } else if (route.name === 'Find Friends') {
               return <Icons name="users" size={30} color="black" />;
             } else if (route.name === 'Settings') {
@@ -77,13 +98,23 @@ const Navigation = props => {
 
             // You can return any component that you like here!
           },
-        })}>
+        })}
+        initialRouteName="Chat">
         <Tab.Screen
           name="Chat"
           component={ChatDashboardStackNavigator}
+          options={({route}) => ({
+            tabBarVisible: showTab(route, NotShowTab),
+          })}
         />
 
-        <Tab.Screen name="Find Friends" component={AllUsers} />
+        <Tab.Screen
+          name="Find Friends"
+          component={AllUserStack}
+          options={({route}) => ({
+            tabBarVisible: showTab(route, NotShowTab),
+          })}
+        />
 
         <Tab.Screen name="Settings" component={Settings} />
       </Tab.Navigator>
