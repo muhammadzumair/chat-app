@@ -1,5 +1,5 @@
 import React from 'react';
-import {createStackNavigator} from '@react-navigation/stack';
+import {createStackNavigator, HeaderBackButton} from '@react-navigation/stack';
 import {NavigationContainer} from '@react-navigation/native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import Icons from 'react-native-vector-icons/FontAwesome';
@@ -40,7 +40,11 @@ const Navigation = props => {
             headerShown: false,
           })}
         />
-        <Userstack.Screen name="ChatBox" component={ChatBox} />
+        <Userstack.Screen
+          name="ChatBox"
+          component={ChatBox}
+          option={() => ({})}
+        />
       </Userstack.Navigator>
     );
   };
@@ -53,6 +57,11 @@ const Navigation = props => {
     var name = arr
       .map(item => item.charAt(0).toUpperCase() + item.slice(1))
       .join(' ');
+
+    console.log(
+      store?.getState()?.ActiveChatReducer?.ChatUser?.displayName,
+      'chatname',
+    );
     return (
       <Stack.Navigator>
         <Stack.Screen
@@ -65,7 +74,13 @@ const Navigation = props => {
             headerShown: false,
           })}
         />
-        <Stack.Screen name="ChatBox" component={ChatBox} />
+        <Stack.Screen
+          name="ChatBox"
+          component={ChatBox}
+          options={() => ({
+            title: 'chatting',
+          })}
+        />
       </Stack.Navigator>
     );
   };
