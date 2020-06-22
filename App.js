@@ -28,7 +28,7 @@ const App = () => {
         firestore()
           .collection('Users')
           .doc(user?.uid)
-          .set(UserObj);
+          .set(UserObj, {merge: true});
       }
     });
   };

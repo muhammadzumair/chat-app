@@ -53,19 +53,17 @@ const Navigation = props => {
   const ChatDashboardStackNavigator = () => {
     const {user} = props;
     // console.log(user.photoURL, 'photo');
-    const arr = user.displayName.split(' ');
+    const UserName = store?.getState()?.ActiveChatReducer?.ChatUser
+      ?.displayName;
+    const arr = UserName?.split(' ');
     var name = arr
-      .map(item => item.charAt(0).toUpperCase() + item.slice(1))
+      ?.map(item => item.charAt(0).toUpperCase() + item.slice(1))
       .join(' ');
 
-    console.log(
-      store?.getState()?.ActiveChatReducer?.ChatUser?.displayName,
-      'chatname',
-    );
     return (
       <Stack.Navigator>
         <Stack.Screen
-          name={name}
+          name="ChatDashboard"
           component={ChatDashboard}
           options={() => ({
             headerLeft: () => (
@@ -78,7 +76,7 @@ const Navigation = props => {
           name="ChatBox"
           component={ChatBox}
           options={() => ({
-            title: 'chatting',
+            title: name,
           })}
         />
       </Stack.Navigator>
@@ -88,7 +86,7 @@ const Navigation = props => {
   const NotShowTab = ['ChatBox'];
 
   const showTab = (route, array) => {
-    console.log(route, 'route');
+    // console.log(route, 'route');
 
     const RouteName = route?.state?.routes[route.state.index]?.name;
     return !array.includes(RouteName);

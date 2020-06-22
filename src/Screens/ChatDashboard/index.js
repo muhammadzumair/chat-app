@@ -72,7 +72,7 @@ const Chat = props => {
         .get()
         .then(querySnapshot => {
           querySnapshot.forEach(UsersData => {
-            console.log(UsersData.data(), 'userData');
+            // console.log(UsersData.data(), 'userData');
             UsersDetail.push(UsersData.data());
             SetUserDetail([...UsersDetail]);
           });
@@ -83,8 +83,8 @@ const Chat = props => {
   }, []);
 
   const ChatStart = v => {
-    console.log(v, 'eee');
     store.dispatch(ActiveChat(v));
+
     props.navigation.navigate('ChatBox');
   };
 
