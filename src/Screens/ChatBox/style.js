@@ -12,6 +12,7 @@ export default styles = StyleSheet.create({
     bottom: 4,
     height: hp('8%'),
     width: wp('100%'),
+    // top: 20,
   },
   MsgBoxInput: {
     flex: 1,

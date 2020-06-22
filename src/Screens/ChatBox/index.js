@@ -11,6 +11,10 @@ import styles from './style';
 import firestore from '@react-native-firebase/firestore';
 import store from '../../Redux/store';
 import {Item} from 'native-base';
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from 'react-native-responsive-screen';
 
 const ChatBox = () => {
   const [message, setmessage] = useState();
@@ -44,18 +48,36 @@ const ChatBox = () => {
             Filter.map(item => {
               SetKey(item?.ChatKey);
               if (isthisUpdate) {
+                // firestore()
+                //   .collection('chat')
+                //   .doc(item?.ChatKey)
+                //   .collection('Chats')
+                //   .get()
+                //   .then(querySnapshot => {
+                //     querySnapshot.forEach(MsgData => {
+                //       console.log(MsgData.data().Msg, 'msgggg');
+                //       MsgArr.push(MsgData.data());
+                //       SetMsgArr([...MsgArr]);
+                //     });
+                //   });
+
                 firestore()
                   .collection('chat')
                   .doc(item?.ChatKey)
                   .collection('Chats')
-                  .get()
-                  .then(querySnapshot => {
-                    querySnapshot.forEach(MsgData => {
-                      console.log(MsgData.data().Msg, 'msgggg');
-                      MsgArr.push(MsgData.data())
-                      SetMsgArr([...MsgArr]);
+                  .onSnapshot(v => {
+                    v.docs.forEach(MsgData => {
+                      console.log(MsgData.data(), 'datavvvv');
+                      const found = MsgArr.some(
+                        el => el.Msg === MsgData.data().Msg,
+                      );
+                      if (!found) {
+                        MsgArr.push(MsgData.data());
+                        SetMsgArr([...MsgArr]);
+                      }
                     });
                   });
+
                 SetisthisUpdate(false);
               }
               console.log(item?.ChatKey, 'item?.ChatKey');
@@ -163,38 +185,52 @@ const ChatBox = () => {
 
   return (
     <View style={{flex: 1}}>
-      <ScrollView>
-{
-MsgArr.map(v=>{
-  return(
-    <View>
-<Text>{v.Msg}</Text>
-      </View>
-  )
-})}
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {MsgArr.map(v => {
+          return (
+            <View
+              style={{
+                backgroundColor: v.Uid == UserUid ? 'black' : '#cacaca',
+                maxHeight: hp('20%'),
+                minHeight: hp('6%'),
+                marginTop: hp('5%'),
+                width: wp('70%'),
+                alignSelf: v.Uid == UserUid ? 'flex-end' : 'flex-start',
+                padding: wp('2%'),
+                borderRadius: 15,
+                borderColor: v.Uid == UserUid ? 'black' : '#d2d2d2',
+              }}>
+              <Text style={{color: v.Uid == UserUid ? 'white' : 'black'}}>
+                {v.Msg}
+              </Text>
+            </View>
+          );
+        })}
       </ScrollView>
-      <View style={styles.MsgBoxView}>
-        <TextInput
-          placeholder="Type a message"
-          style={styles.MsgBoxInput}
-          autoCapitalize="sentences"
-          onChangeText={text => {
-            setmessage(text);
-          }}
-          multiline
-          value={message}
-        />
-        <TouchableOpacity
-          onPress={() => {
-            send();
-          }}>
-          <Ionicons
-            name="md-send"
-            size={40}
-            color="black"
-            style={styles.MsgBoxIcon}
+      <View style={{marginTop: 55}}>
+        <View style={styles.MsgBoxView}>
+          <TextInput
+            placeholder="Type a message"
+            style={styles.MsgBoxInput}
+            autoCapitalize="sentences"
+            onChangeText={text => {
+              setmessage(text);
+            }}
+            multiline
+            value={message}
           />
-        </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              send();
+            }}>
+            <Ionicons
+              name="md-send"
+              size={40}
+              color="black"
+              style={styles.MsgBoxIcon}
+            />
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
