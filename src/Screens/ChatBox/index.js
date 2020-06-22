@@ -10,6 +10,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import styles from './style';
 import firestore from '@react-native-firebase/firestore';
 import store from '../../Redux/store';
+import {Item} from 'native-base';
 
 const ChatBox = () => {
   const [message, setmessage] = useState();
@@ -17,47 +18,49 @@ const ChatBox = () => {
   const [NewChat, SetNewChat] = useState(false);
   const [Key, SetKey] = useState();
   const [FirstChat, SetFirstChat] = useState(false);
+  const [MsgArr, SetMsgArr] = useState([]);
+  const [isthisUpdate, SetisthisUpdate] = useState(true);
   const UserUid = store.getState().UserReducer.user.uid;
   const ActiveUserUid = store.getState()?.ActiveChatReducer?.ChatUser.UserUid;
   useEffect(() => {
     console.log(ActiveUserUid, 'userchat');
     console.log(UserUid, 'userchat');
-    // firestore()
-    //   .collection('Users')
-    //   .doc(store?.getState()?.UserReducer?.user?.uid)
-    //   .onSnapshot(docData => {
-    //     // console.log(docData.data(), 'docdata');
-    //     if (docData?.data()?.ChatId) {
-    //       docData.data()?.ChatId.filter(v => {
-    //         if (
-    //           v.Uid == store.getState()?.ActiveChatReducer?.ChatUser?.UserUid
-    //         ) {
-    //           SetKey(v.key);
-    //         } else {
-    //           SetChatStart(true);
-    //         }
-    //       });
-    //     } else {
-    //       SetNewChat(true);
-    //     }
-    //   });
+    console.log(Key, 'key');
 
-    // console.log(store?.getState()?.UserReducer?.user?.uid,"jjj")
     firestore()
       .collection('Users')
       .doc(UserUid)
       .onSnapshot(DocData => {
         console.log(DocData.data(), 'data');
         if (DocData.data().ChatId) {
-          DocData.data().ChatId.map(item => {
-            if (item?.Uid == ActiveUserUid) {
-              SetKey(item?.ChatKey);
-              console.log(item?.ChatKey, 'item?.ChatKey');
-            } else {
-              SetNewChat(true);
-              console.log('no uid ');
-            }
+          const Filter = DocData.data()?.ChatId.filter(v => {
+            return v?.Uid == ActiveUserUid;
           });
+          console.log(Filter.length, 'filternnn');
+          if (Filter.length == 0) {
+            SetNewChat(true);
+            console.log('no uid ');
+          } else {
+            Filter.map(item => {
+              SetKey(item?.ChatKey);
+              if (isthisUpdate) {
+                firestore()
+                  .collection('chat')
+                  .doc(item?.ChatKey)
+                  .collection('Chats')
+                  .get()
+                  .then(querySnapshot => {
+                    querySnapshot.forEach(MsgData => {
+                      console.log(MsgData.data().Msg, 'msgggg');
+                      MsgArr.push(MsgData.data())
+                      SetMsgArr([...MsgArr]);
+                    });
+                  });
+                SetisthisUpdate(false);
+              }
+              console.log(item?.ChatKey, 'item?.ChatKey');
+            });
+          }
         } else {
           SetFirstChat(true);
           console.log('no Chatid ');
@@ -69,82 +72,29 @@ const ChatBox = () => {
     setmessage('');
     const chatObj = {
       Msg: message,
-      Uid: store.getState().UserReducer.user.uid,
+      Uid: store.getState().UserReducer?.user?.uid,
     };
-
-    // firestore()
-    //   .collection('Users').where("ChatId",'array-contains',)
-    // firestore()
-    //   .collection('chat')
-    //   .add(chatObj)
-
-    // const chatdata = firestore()
-    //   .collection('chat')
-    //   .add({})
-    //   .then(key => {
-    //     console.log(key._documentPath._parts[1], 'chat');
-    //   });
-    // if (NewChat) {
-    //   firestore()
-    //     .collection('chat')
-    //     .add(chatObj)
-    //     .then(key => {
-    //       SetKey(key._documentPath._parts[1]);
-    //       const pushkey = key._documentPath._parts[1];
-    //       const ChatId = [
-    //         {
-    //           key: pushkey,
-    //           Uid: store.getState()?.ActiveChatReducer?.ChatUser.UserUid,
-    //         },
-    //       ];
-
-    //       firestore()
-    //         .collection('Users')
-    //         .doc(store.getState().UserReducer.user.uid)
-    //         .set({ChatId}, {merge: true});
-    //     });
-    //   SetNewChat(false);
-    // } else if (ChatStart) {
-    //   firestore()
-    //     .collection('chat')
-    //     .add(chatObj)
-    //     .then(key => {
-    //       SetKey(key._documentPath._parts[1]);
-    //       const pushkey = key._documentPath._parts[1];
-    //       const ChatId = [
-    //         {
-    //           key: pushkey,
-    //           Uid: store.getState()?.ActiveChatReducer?.ChatUser.UserUid,
-    //         },
-    //       ];
-
-    //       firestore()
-    //         .collection('Users')
-    //         .doc(store.getState().UserReducer.user.uid)
-    //         .set({ChatId}, {merge: true});
-    //     });
-    //   SetChatStart(false);
-    // } else {
-    //   firestore()
-    //     .collection('chat')
-    //     .doc(Key)
-    //     .set(chatObj, {merge: true});
-    // }
 
     if (FirstChat) {
       console.log('no chatid ');
 
       firestore()
         .collection('chat')
-        .add(chatObj)
+        .add({})
         .then(PushKey => {
           console.log(PushKey._documentPath._parts[1], 'FirstChat');
+          firestore()
+            .collection('chat')
+            .doc(PushKey._documentPath._parts[1])
+            .collection('Chats')
+            .add(chatObj);
           const ChatId = [
             {
               Uid: ActiveUserUid,
               ChatKey: PushKey._documentPath._parts[1],
             },
           ];
+
           firestore()
             .collection('Users')
             .doc(UserUid)
@@ -170,33 +120,34 @@ const ChatBox = () => {
 
       firestore()
         .collection('chat')
-        .add(chatObj)
+        .add({})
         .then(PushKey => {
+          firestore()
+            .collection('chat')
+            .doc(PushKey._documentPath._parts[1])
+            .collection('Chats')
+            .add(chatObj);
+
           firestore()
             .collection('Users')
             .doc(UserUid)
-            .set(
-              {
-                ChatId: [
-                  {
-                    Uid: ActiveUserUid,
-                    ChatKey: PushKey._documentPath._parts[1],
-                  },
-                ],
-              },
-              {merge: true},
-            );
+            .update({
+              ChatId: firestore.FieldValue.arrayUnion({
+                Uid: ActiveUserUid,
+                ChatKey: PushKey._documentPath._parts[1],
+              }),
+            });
+
           firestore()
             .collection('Users')
             .doc(ActiveUserUid)
-            .set(
-              {
-                ChatId: [
-                  {Uid: UserUid, ChatKey: PushKey._documentPath._parts[1]},
-                ],
-              },
-              {merge: true},
-            );
+            .update({
+              ChatId: firestore.FieldValue.arrayUnion({
+                Uid: UserUid,
+                ChatKey: PushKey._documentPath._parts[1],
+              }),
+            });
+
           SetKey(PushKey);
           SetNewChat(false);
         });
@@ -205,15 +156,22 @@ const ChatBox = () => {
       firestore()
         .collection('chat')
         .doc(Key)
-        .set(chatObj, {merge: true});
+        .collection('Chats')
+        .add(chatObj);
     }
   };
+
   return (
     <View style={{flex: 1}}>
       <ScrollView>
-        <View>
-          <Text>{sendMsg}</Text>
-        </View>
+{
+MsgArr.map(v=>{
+  return(
+    <View>
+<Text>{v.Msg}</Text>
+      </View>
+  )
+})}
       </ScrollView>
       <View style={styles.MsgBoxView}>
         <TextInput
