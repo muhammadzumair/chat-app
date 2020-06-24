@@ -16,6 +16,7 @@ import {ActiveChat} from '../../Redux/Actions/ActiveChatAction';
 const Chat = props => {
   const [UsersDetail, SetUserDetail] = useState([]);
   const [DidUpdate, setDidUpdate] = useState(true);
+  const [ChatUser, SetChatUser] = useState([]);
   const PhotoUrl = [
     {
       imageUrl:
@@ -64,6 +65,8 @@ const Chat = props => {
   ];
 
   useEffect(() => {
+    const UserUid = store?.getState()?.UserReducer?.user?.uid;
+
     if (DidUpdate) {
       // const UsersArray = [];
       console.log('work');
@@ -77,6 +80,23 @@ const Chat = props => {
             SetUserDetail([...UsersDetail]);
           });
         });
+      firestore()
+        .collection('Users')
+        .doc(UserUid)
+        .onSnapshot(UserData => {
+          console.log(UserData?.data()?.ChatId);
+          UserData?.data()?.ChatId?.map(value => {
+            console.log(value.Uid, 'value');
+            firestore()
+              .collection('Users')
+              .doc(value.Uid)
+              .onSnapshot(Detail => {
+                console.log(Detail.data(), 'detail');
+                ChatUser.push(Detail.data());
+                SetChatUser([...ChatUser]);
+              });
+          });
+        });
       setDidUpdate(false);
     }
     // console.log(store.getState().UserReducer.user.uid, 'userreducer');
@@ -84,24 +104,23 @@ const Chat = props => {
 
   const ChatStart = v => {
     store.dispatch(ActiveChat(v));
+    console.log(v, 'vvvvv');
 
     props.navigation.navigate('ChatBox');
   };
 
   const Item = Item => {
-    // console.log(UsersDetail, 'Userdetail');
-
     return (
       <TouchableOpacity
         style={styles.MainListView}
         onPress={() => {
-          props.navigation.navigate('ChatBox');
+          ChatStart(Item);
         }}>
         <View style={styles.ListView}>
-          <Image source={{uri: Item.imageUrl}} style={styles.ListImg} />
+          <Image source={{uri: Item.PhotoUrl}} style={styles.ListImg} />
         </View>
         <View style={{flex: 3}}>
-          <Text style={styles.ListTitle}>{Item.Name}</Text>
+          <Text style={styles.ListTitle}>{Item.displayName}</Text>
           <Text>you:kese ho</Text>
         </View>
       </TouchableOpacity>
@@ -109,7 +128,12 @@ const Chat = props => {
   };
   return (
     <View>
-      <View>
+      <View
+        style={{
+          borderBottomColor: '#cfcfcf',
+          borderBottomWidth: 1,
+          elevation: 1,
+        }}>
         <Text style={styles.UserScrollText}>Friends Active</Text>
         <ScrollView
           horizontal={true}
@@ -138,7 +162,7 @@ const Chat = props => {
         </ScrollView>
       </View>
       <FlatList
-        data={PhotoUrl}
+        data={ChatUser}
         renderItem={({item}) => Item(item)}
         keyExtractor={item => item.key}
         style={styles.FlatListStyle}

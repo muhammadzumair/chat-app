@@ -33,8 +33,7 @@ export default styles = StyleSheet.create({
   UsersScroll: {
     flexDirection: 'row',
     flex: 1,
-    borderBottomColor: '#cfcfcf',
-    borderBottomWidth: 2,
+
     // elevation: 1,
     height: hp('17%'),
     padding: hp('1%'),

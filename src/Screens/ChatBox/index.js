@@ -10,7 +10,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import styles from './style';
 import firestore from '@react-native-firebase/firestore';
 import store from '../../Redux/store';
-import {Item} from 'native-base';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
@@ -22,8 +22,10 @@ const ChatBox = () => {
   const [NewChat, SetNewChat] = useState(false);
   const [Key, SetKey] = useState();
   const [FirstChat, SetFirstChat] = useState(false);
-  const [MsgArr, SetMsgArr] = useState([]);
+  let [MsgArr, SetMsgArr] = useState([]);
   const [isthisUpdate, SetisthisUpdate] = useState(true);
+  const [scrollRef, SetScrollRef] = useState();
+
   const UserUid = store.getState().UserReducer.user.uid;
   const ActiveUserUid = store.getState()?.ActiveChatReducer?.ChatUser.UserUid;
   useEffect(() => {
@@ -48,33 +50,16 @@ const ChatBox = () => {
             Filter.map(item => {
               SetKey(item?.ChatKey);
               if (isthisUpdate) {
-                // firestore()
-                //   .collection('chat')
-                //   .doc(item?.ChatKey)
-                //   .collection('Chats')
-                //   .get()
-                //   .then(querySnapshot => {
-                //     querySnapshot.forEach(MsgData => {
-                //       console.log(MsgData.data().Msg, 'msgggg');
-                //       MsgArr.push(MsgData.data());
-                //       SetMsgArr([...MsgArr]);
-                //     });
-                //   });
-
                 firestore()
                   .collection('chat')
                   .doc(item?.ChatKey)
                   .collection('Chats')
+                  .orderBy('timestamp')
                   .onSnapshot(v => {
+                    MsgArr = [];
                     v.docs.forEach(MsgData => {
-                      console.log(MsgData.data(), 'datavvvv');
-                      const found = MsgArr.some(
-                        el => el.Msg === MsgData.data().Msg,
-                      );
-                      if (!found) {
-                        MsgArr.push(MsgData.data());
-                        SetMsgArr([...MsgArr]);
-                      }
+                      MsgArr.push(MsgData.data());
+                      SetMsgArr([...MsgArr]);
                     });
                   });
 
@@ -95,6 +80,7 @@ const ChatBox = () => {
     const chatObj = {
       Msg: message,
       Uid: store.getState().UserReducer?.user?.uid,
+      timestamp: firestore.FieldValue.serverTimestamp(),
     };
 
     if (FirstChat) {
@@ -181,11 +167,19 @@ const ChatBox = () => {
         .collection('Chats')
         .add(chatObj);
     }
+    scrollRef.scrollToEnd({animated: true});
   };
 
   return (
     <View style={{flex: 1}}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        ref={ref => {
+          SetScrollRef(ref);
+        }}
+        // onContentSizeChange={() => scrollRef.scrollToEnd({animated: true})}
+        // style={{backgroundColor: 'yellow', maxHeight: hp('90%')}}
+      >
         {MsgArr.map(v => {
           return (
             <View
@@ -202,6 +196,11 @@ const ChatBox = () => {
               }}>
               <Text style={{color: v.Uid == UserUid ? 'white' : 'black'}}>
                 {v.Msg}
+              </Text>
+              <Text style={{color: 'white', textAlign: 'right'}}>
+                {String(
+                  new Date(v?.timestamp?.seconds * 1000).toLocaleTimeString(),
+                )}
               </Text>
             </View>
           );
